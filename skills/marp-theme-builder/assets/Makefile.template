@@ -1,0 +1,103 @@
+# =============================================================================
+# Marp テーマ Makefile テンプレート
+# =============================================================================
+#
+# 使用方法:
+#   make init      - 初期セットアップ
+#   make           - ビルド実行
+#   make csswatch  - SCSS監視モード
+#   make marpwatch - スライド監視モード
+#   make clean     - 生成ファイル削除
+#
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# パス設定（必要に応じて変更）
+# -----------------------------------------------------------------------------
+THEME_NAME    = my-theme
+CSS_PATH      = ./marp-themes/$(THEME_NAME).css
+SCSS_PATH     = ./marp-themes/$(THEME_NAME).scss
+SRC_PATH      = ./example/example.md
+DST_BASE_PATH = ./example/example.png
+
+# 生成される画像ファイル（スライド数に応じて追加）
+DST_PATH      = ./example/example.001.png \
+                ./example/example.002.png \
+                ./example/example.003.png
+
+# -----------------------------------------------------------------------------
+# コマンド設定
+# -----------------------------------------------------------------------------
+SASS_CMD      = sass
+MARP_CMD      = npx @marp-team/marp-cli@latest
+
+# -----------------------------------------------------------------------------
+# ターゲット
+# -----------------------------------------------------------------------------
+
+.DEFAULT_GOAL := all
+
+# ヘルプ
+help:
+	@echo "使用可能なターゲット:"
+	@echo "  make init      - 初期セットアップ（最初に1回実行）"
+	@echo "  make           - ビルド実行"
+	@echo "  make csswatch  - SCSS変更を監視して自動コンパイル"
+	@echo "  make marpwatch - CSS/MD変更を監視して自動画像生成"
+	@echo "  make serve     - ローカルプレビューサーバー起動"
+	@echo "  make clean     - 生成ファイル削除"
+	@echo "  make test      - クリーンビルドテスト"
+
+# デフォルトターゲット
+all: $(DST_PATH)
+
+# 初期化
+init:
+	@echo "初期化中..."
+	git config core.hooksPath .githooks
+	npm install -g sass
+	@echo "完了"
+
+# 画像生成（CSSとMDに依存）
+$(DST_PATH): $(CSS_PATH) $(SRC_PATH)
+	$(MARP_CMD) \
+	  $(SRC_PATH) \
+	  --output $(DST_BASE_PATH) \
+	  --theme-set $(CSS_PATH) \
+	  --images png
+
+# CSSコンパイル（SCSSに依存）
+$(CSS_PATH): $(SCSS_PATH)
+	$(SASS_CMD) $(SCSS_PATH) $(CSS_PATH)
+
+# SCSS監視モード
+csswatch:
+	$(SASS_CMD) --watch $(SCSS_PATH) $(CSS_PATH)
+
+# Marp監視モード
+marpwatch:
+	$(MARP_CMD) \
+	  $(SRC_PATH) \
+	  --watch \
+	  --output $(DST_BASE_PATH) \
+	  --theme-set $(CSS_PATH) \
+	  --images png
+
+# プレビューサーバー
+serve:
+	$(MARP_CMD) \
+	  $(SRC_PATH) \
+	  --theme-set $(CSS_PATH) \
+	  --server
+
+# クリーン
+clean:
+	rm -f $(CSS_PATH) $(CSS_PATH).map
+	rm -f ./example/example.*.png
+
+# テスト（クリーンビルド）
+test: clean all
+	@echo "ビルドテスト完了"
+
+# PHONYターゲット
+.PHONY: help all init csswatch marpwatch serve clean test

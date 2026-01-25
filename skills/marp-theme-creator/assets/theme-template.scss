@@ -1,0 +1,276 @@
+/*!
+ * @theme my-custom-theme
+ * @auto-scaling true
+ * @size 16:9 1280px 720px
+ * @size 4:3 960px 720px
+ */
+
+// =============================================================================
+// 1. 変数定義
+// =============================================================================
+
+// カラーパレット
+$color-primary: #003981;
+$color-secondary: #005ea5;
+$color-background: #ffffff;
+$color-text: #333333;
+$color-text-light: #666666;
+$color-highlight: #0288d1;
+
+// フォント
+$font-family-base: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif;
+$font-family-heading: 'Noto Sans JP', sans-serif;
+$font-family-code: 'Roboto Mono', 'Consolas', monospace;
+
+// サイズ
+$font-size-base: 28px;
+$line-height-base: 1.4;
+
+// =============================================================================
+// 2. フォント読み込み
+// =============================================================================
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Roboto+Mono&display=swap');
+
+// =============================================================================
+// 3. ミックスイン
+// =============================================================================
+
+@mixin color-scheme($bg, $text, $highlight) {
+  --color-background: #{$bg};
+  --color-foreground: #{$text};
+  --color-highlight: #{$highlight};
+  --color-dimmed: #{mix($text, $bg, 70%)};
+}
+
+// =============================================================================
+// 4. ベーススタイル
+// =============================================================================
+
+section {
+  @include color-scheme($color-background, $color-text, $color-highlight);
+
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: $font-family-base;
+  font-size: $font-size-base;
+  line-height: $line-height-base;
+  padding: 40px 50px;
+  width: 1280px;
+  height: 720px;
+}
+
+// =============================================================================
+// 5. タイポグラフィ
+// =============================================================================
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: $font-family-heading;
+  font-weight: 700;
+  margin: 0 0 0.5em 0;
+  color: $color-primary;
+}
+
+h1 { font-size: 1.6em; }
+h2 { font-size: 1.3em; }
+h3 { font-size: 1.1em; }
+h4 { font-size: 1em; }
+h5 { font-size: 0.9em; }
+h6 { font-size: 0.8em; }
+
+p {
+  margin: 0.8em 0;
+}
+
+a {
+  color: var(--color-highlight);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+strong {
+  font-weight: 700;
+}
+
+// =============================================================================
+// 6. リスト
+// =============================================================================
+
+ul, ol {
+  margin: 0.5em 0;
+  padding-left: 1.5em;
+
+  > li {
+    margin: 0.2em 0;
+  }
+}
+
+// =============================================================================
+// 7. コード
+// =============================================================================
+
+code {
+  font-family: $font-family-code;
+  font-size: 0.85em;
+  background: rgba(0, 0, 0, 0.05);
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
+}
+
+pre {
+  margin: 1em 0;
+
+  > code {
+    display: block;
+    padding: 1em;
+    background: #2d2d2d;
+    color: #f8f8f2;
+    border-radius: 8px;
+    font-size: 0.7em;
+    overflow-x: auto;
+  }
+}
+
+// =============================================================================
+// 8. テーブル
+// =============================================================================
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1em 0;
+  font-size: 0.9em;
+
+  th, td {
+    padding: 0.4em 0.6em;
+    border: 1px solid #ccc;
+    text-align: left;
+  }
+
+  thead th {
+    background: $color-primary;
+    color: white;
+  }
+
+  tbody tr:nth-child(even) {
+    background: rgba(0, 0, 0, 0.03);
+  }
+}
+
+// =============================================================================
+// 9. 引用
+// =============================================================================
+
+blockquote {
+  margin: 1em 0;
+  padding: 0.5em 1em;
+  border-left: 4px solid $color-primary;
+  color: $color-text-light;
+  font-style: italic;
+}
+
+// =============================================================================
+// 10. ヘッダー・フッター・ページ番号
+// =============================================================================
+
+header {
+  position: absolute;
+  top: 20px;
+  left: 50px;
+  right: 50px;
+  font-size: 0.6em;
+  color: var(--color-dimmed);
+}
+
+footer {
+  position: absolute;
+  bottom: 20px;
+  left: 50px;
+  right: 50px;
+  font-size: 0.5em;
+  color: var(--color-dimmed);
+  text-align: right;
+}
+
+section::after {
+  position: absolute;
+  right: 50px;
+  bottom: 20px;
+  font-size: 0.6em;
+  color: var(--color-dimmed);
+}
+
+// =============================================================================
+// 11. スライドクラス
+// =============================================================================
+
+// セクション区切り
+section.lead {
+  @include color-scheme($color-primary, white, lighten($color-secondary, 30%));
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: linear-gradient(135deg, darken($color-primary, 10%), $color-secondary);
+
+  h1, h2 {
+    color: white;
+    text-align: center;
+  }
+
+  h1 {
+    font-size: 2em;
+  }
+
+  // ページ番号を非表示
+  &::after {
+    display: none;
+  }
+}
+
+// 表紙
+section.cover {
+  @include color-scheme(darken($color-primary, 20%), white, lighten($color-secondary, 30%));
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: linear-gradient(135deg, #1a1a2e, darken($color-primary, 10%));
+  padding-left: 80px;
+
+  h1 {
+    color: white;
+    font-size: 2.2em;
+  }
+
+  p {
+    color: rgba(255, 255, 255, 0.8);
+    text-align: right;
+    padding-right: 50px;
+  }
+
+  &::after {
+    display: none;
+  }
+}
+
+// 反転
+section.invert {
+  @include color-scheme(#333333, #f0f0f0, #6eb5ff);
+
+  h1, h2, h3, h4, h5, h6 {
+    color: white;
+  }
+}
+
+// 中央揃え
+section.center {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}

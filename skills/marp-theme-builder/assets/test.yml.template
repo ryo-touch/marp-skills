@@ -1,0 +1,128 @@
+# =============================================================================
+# Marp テーマ GitHub Actions ワークフロー テンプレート
+# =============================================================================
+#
+# このファイルを .github/workflows/test.yml にコピーして使用してください。
+#
+# 機能:
+#   - プッシュ/PR時にビルドテスト
+#   - コミット済み画像との差分チェック
+#   - ビルド結果をアーティファクトとして保存
+#
+# =============================================================================
+
+name: テーマビルドテスト
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: bash --noprofile --norc -euxo pipefail {0}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # ----------------------------------------
+      # セットアップ
+      # ----------------------------------------
+      - name: リポジトリのチェックアウト
+        uses: actions/checkout@v4
+
+      - name: Node.js セットアップ
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: sass インストール
+        run: npm install -g sass
+
+      # ----------------------------------------
+      # ビルドと差分チェック
+      # ----------------------------------------
+      - name: コミット済み画像をバックアップ
+        run: |
+          mkdir -p example-backup
+          mv example/example.*.png example-backup/ 2>/dev/null || echo "バックアップ対象なし"
+
+      - name: クリーンビルド
+        run: make clean all
+
+      - name: 画像差分チェック
+        run: |
+          echo "画像差分チェック開始..."
+          failed=0
+
+          for backup_file in example-backup/example.*.png; do
+            if [ -f "$backup_file" ]; then
+              name=$(basename "$backup_file")
+              gen_file="example/$name"
+
+              if [ ! -f "$gen_file" ]; then
+                echo "FAIL: $name - 生成されていません"
+                failed=1
+                continue
+              fi
+
+              result="$(composite -compose difference \
+                "$gen_file" \
+                "$backup_file" \
+                - | \
+                identify -format '%[mean]' -)"
+
+              # 閾値チェック（65535 * 0.001 ≈ 65.5）
+              if (( $(echo "$result > 65.5" | bc -l) )); then
+                echo "FAIL: $name - 差分検出 (mean: $result)"
+                failed=1
+              else
+                echo "PASS: $name"
+              fi
+            fi
+          done
+
+          if [ $failed -eq 1 ]; then
+            echo ""
+            echo "画像に差分があります。以下を確認してください:"
+            echo "  1. SCSSの変更が意図したものか"
+            echo "  2. make all を実行して画像を再生成したか"
+            exit 1
+          fi
+
+          echo "すべての画像が一致しました"
+
+      # ----------------------------------------
+      # アーティファクト保存
+      # ----------------------------------------
+      - name: ビルド結果をアーティファクトとして保存
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: example-slides
+          path: example/
+          retention-days: 14
+          if-no-files-found: error
+
+      # ----------------------------------------
+      # PR コメント（オプション）
+      # ----------------------------------------
+      # - name: PR に結果をコメント
+      #   if: github.event_name == 'pull_request'
+      #   uses: actions/github-script@v7
+      #   with:
+      #     script: |
+      #       github.rest.issues.createComment({
+      #         issue_number: context.issue.number,
+      #         owner: context.repo.owner,
+      #         repo: context.repo.repo,
+      #         body: 'ビルド成功。Artifactsからスライド画像を確認できます。'
+      #       });

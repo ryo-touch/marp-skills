@@ -1,0 +1,55 @@
+#!/bin/sh
+# =============================================================================
+# Marp テーマ pre-commit フック テンプレート
+# =============================================================================
+#
+# このファイルを .githooks/pre-commit にコピーして使用してください。
+#
+# セットアップ:
+#   1. mkdir -p .githooks
+#   2. cp pre-commit.template .githooks/pre-commit
+#   3. chmod +x .githooks/pre-commit
+#   4. git config core.hooksPath .githooks
+#
+# または:
+#   make init
+#
+# =============================================================================
+
+echo "========================================"
+echo "pre-commit: ビルドチェック開始"
+echo "========================================"
+
+# ビルド実行
+build_output=$(make 2>&1)
+build_rc=$?
+
+if [ $build_rc -ne 0 ]; then
+    echo ""
+    echo "========================================"
+    echo "pre-commit: ビルド失敗"
+    echo "========================================"
+    echo ""
+    echo "$build_output"
+    echo ""
+    echo "エラーを修正してから再度コミットしてください。"
+    echo ""
+    echo "ヒント:"
+    echo "  - SCSSの構文エラーがないか確認"
+    echo "  - sassがインストールされているか確認 (make init)"
+    echo "  - 緊急時は --no-verify でスキップ可能"
+    echo ""
+    exit 1
+fi
+
+# 生成ファイルをステージに追加（オプション）
+# git add marp-themes/*.css
+# git add example/example.*.png
+
+echo ""
+echo "========================================"
+echo "pre-commit: ビルド成功"
+echo "========================================"
+echo ""
+
+exit 0

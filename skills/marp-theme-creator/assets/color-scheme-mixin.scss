@@ -1,0 +1,111 @@
+// =============================================================================
+// Marp テーマ用カラースキーム Mixin集
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// 基本カラースキーム
+// -----------------------------------------------------------------------------
+
+/// 基本的なカラースキームを設定
+/// @param {Color} $bg - 背景色
+/// @param {Color} $text - テキスト色
+/// @param {Color} $highlight - ハイライト色
+@mixin color-scheme($bg, $text, $highlight) {
+  --color-background: #{$bg};
+  --color-foreground: #{$text};
+  --color-highlight: #{$highlight};
+  --color-dimmed: #{mix($text, $bg, 70%)};
+  --color-background-stripe: #{rgba($text, 0.05)};
+}
+
+// -----------------------------------------------------------------------------
+// プリセットカラースキーム
+// -----------------------------------------------------------------------------
+
+/// ライトテーマ（白背景）
+@mixin color-scheme-light($primary: #003981, $highlight: #0288d1) {
+  @include color-scheme(#ffffff, $primary, $highlight);
+}
+
+/// ダークテーマ（暗い背景）
+@mixin color-scheme-dark($bg: #1a1a2e, $highlight: #6eb5ff) {
+  @include color-scheme($bg, #f0f0f0, $highlight);
+}
+
+/// 反転テーマ
+@mixin color-scheme-invert($primary: #333333, $highlight: #6eb5ff) {
+  @include color-scheme($primary, #ffffff, $highlight);
+}
+
+// -----------------------------------------------------------------------------
+// グラデーション背景
+// -----------------------------------------------------------------------------
+
+/// グラデーション背景を設定
+/// @param {Color} $from - 開始色
+/// @param {Color} $to - 終了色
+/// @param {Number} $angle - 角度（デフォルト: 135deg）
+@mixin gradient-background($from, $to, $angle: 135deg) {
+  background: linear-gradient($angle, $from, $to);
+}
+
+/// 企業向けグラデーション（青系）
+@mixin gradient-corporate($primary: #003981, $secondary: #005ea5) {
+  @include gradient-background(darken($primary, 10%), $secondary);
+  color: white;
+}
+
+/// 暖色系グラデーション
+@mixin gradient-warm($from: #ff6b6b, $to: #feca57) {
+  @include gradient-background($from, $to);
+  color: white;
+}
+
+/// 寒色系グラデーション
+@mixin gradient-cool($from: #667eea, $to: #764ba2) {
+  @include gradient-background($from, $to);
+  color: white;
+}
+
+/// ダークグラデーション
+@mixin gradient-dark($from: #1a1a2e, $to: #16213e) {
+  @include gradient-background($from, $to);
+  color: white;
+}
+
+// -----------------------------------------------------------------------------
+// 使用例
+// -----------------------------------------------------------------------------
+
+/*
+// 基本的な使い方
+section {
+  @include color-scheme-light(#003981, #0288d1);
+}
+
+section.lead {
+  @include gradient-corporate(#003981, #005ea5);
+}
+
+section.cover {
+  @include gradient-dark();
+}
+
+section.invert {
+  @include color-scheme-invert();
+}
+
+// カスタムカラーで使用
+section.custom {
+  @include color-scheme(
+    #f5f5dc,   // クリーム色の背景
+    #333333,   // ダークテキスト
+    #8b4513    // ブラウンのハイライト
+  );
+}
+
+section.gradient-custom {
+  @include gradient-background(#11998e, #38ef7d, 90deg);
+  color: white;
+}
+*/
