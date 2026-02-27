@@ -1,6 +1,7 @@
 ---
 name: marp-export
 description: Marpスライドを各種形式（PDF, PNG, PPTX, HTML）にエクスポートするスキル。「PDFに変換」「スライドを書き出し」「画像で出力」「PowerPointにエクスポート」などのリクエストに対応。
+argument-hint: "<Markdownファイルパス> [出力形式: pdf|png|pptx|html]"
 ---
 
 # Marp Export スキル
@@ -97,3 +98,5 @@ marp slide.md --html -o slide.html
 ## スクリプト
 
 - [export.sh](./scripts/export.sh) - 統合エクスポートスクリプト
+
+$ARGUMENTS
